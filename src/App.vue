@@ -49,7 +49,7 @@ setInterval(()=>{
       <!-- 数据总览图 -->
       <TotalData class=" bg-opacity-50 bg-slate-800 p-3" :data="chartData.totalData" />
       <!-- 地图可视化 -->
-      <MapChart  class=" bg-opacity-50 bg-slate-800 flex-1 p-3 mt-4"/>
+      <MapChart  class=" bg-opacity-50 bg-slate-800 flex-1 p-3 mt-4" :data="chartData.mapData" />
 
     </div>
     <!-- 右 -->
