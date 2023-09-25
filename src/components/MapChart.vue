@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div>【服务资源占用比】</div>
+    <!-- <div>【服务资源占用比】</div> -->
     <div ref="target"  class=" w-full h-full"></div>
   </div>
 </template>
@@ -8,6 +8,7 @@
 <script setup>
 import {onMounted, ref, watch} from 'vue'
 import * as echarts from 'echarts';
+import mapJson from '../assets/MapData/china.json'
 
   const props = defineProps({
     data:{
@@ -27,6 +28,7 @@ import * as echarts from 'echarts';
 
   //指定图表的配置项和数据
   const renderChart = () => {
+    echarts.registerMap('china',mapJson)
     const options = {
         //时间轴
       timeline:{
@@ -89,18 +91,147 @@ import * as echarts from 'echarts';
       },
       //柱形图
       baseOption:{
+        //柱形图的位置和大小
         grid:{
-
+          right:'2%',
+          top:'15%',
+          width:'20%'
         },
+       title:[
+        {
+            text:'2019-2023 年度数据统计',
+            textStyle:{
+              color:'#ccc',
+              fontSize:30
+            }
+          },
+       ],
+       geo:{
+        show:true,
+        map:'china',
+        roam:true,
+        center:[113.83531246, 34.0267395887],
+        itemStyle:{
+          normal: {
+						// 边框色值
+						borderColor: 'rgba(147, 235, 248, 1)',
+						// 边框宽度
+						borderWidth: 1,
+						// 区域颜色
+						areaColor: {
+							// 经向色值
+							type: 'radial',
+							x: 0.5,
+							y: 0.5,
+							r: 0.5,
+							colorStops: [
+								// 0% 处的颜色
+								{
+									offset: 0,
+									color: 'rgba(147, 235, 248, 0)'
+								},
+								// 100% 处的颜色
+								{
+									offset: 1,
+									color: 'rgba(147, 235, 248, .2)'
+								}
+							],
+							// 缺省为 false
+							globalCoord: false
+						}
+					},
+					// 鼠标移入的色值
+					emphasis: {
+						areaColor: '#389BB7',
+						borderWidth: 0
+					}
+        }
+       }
       },
       //timeline 时间轴下的多个图表
       options:[]
 
     }
 
-
     props.data.voltageLevel.forEach((item,index) => {
-      options.options.push()
+      // console.log(props.data.categoryData[item].map(i => i.name));
+      options.options.push({
+        backgroundColor: '#142037',
+        title:[
+          {
+            id:'statistic',
+            text:item + '年数据统计情况',
+            right:'2%',
+            top:'4%',
+            textStyle:{
+              color:'#ccc',
+              fontSize:20
+            }
+          }
+        ],
+        xAxis:{
+          type:'value',
+          position:'top',
+          axisTick:{
+            show:false
+          },
+          splitLine:{
+            show:false
+          },
+          splitNumber:10,
+          // 脱离 0 值比例
+				  // scale: true,
+        },
+        yAxis:{
+          type:'category',
+          show:true,
+          data:props.data.categoryData[item].map(i => i.name),
+          axisLine: {
+            show: true,
+            lineStyle: {
+              color: '#ddd'
+            }
+          },
+          axisTick:{
+            show:false
+          },
+          axisLabel:{
+            fontSize:7
+          }
+        },
+        series:[{
+          type:'bar',
+          zlevel:1.5,
+          data:props.data.categoryData[item].map(i => i.value),
+          itemStyle:{
+            color:props.data.colors[index],
+            height:10
+          }
+        },
+        {
+          type:'effectScatter',
+          coordinateSystem:'geo',
+          data:props.data.topData[item],
+          rippleEffect :{
+            brushType:'stroke'
+          },
+          symbolSize:function (val) {
+            return val[2]/4
+          },
+          label:{
+            normal:{
+              show:true,
+              position:'right',
+              formatter:'{b}'
+            }
+          },
+          itemStyle:{
+            normal:{
+              color:props.data.colors[index]
+            }
+          }
+        }]
+      })
     })
 
     myChart.setOption(options)
